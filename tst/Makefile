@@ -9,3 +9,4 @@ circle.o : ../circle.cpp ../circle.h ../line.h ../point.h
 	
 triangle.o : ../triangle.cpp ../triangle.h ../line.h ../point.h
 	g++ ../triangle.cpp -lglut -lGL -lGLU -c
+	

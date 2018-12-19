@@ -10,7 +10,10 @@ GLsizei view_w, view_h;
 
 //triangle main_rec(point(0, 10), point(20, 30), point(40, 10));
 //rectangle main_rec(10, 10, 15, 20);
-circle main_rec(10, 10, 20);
+//circle main_rec(10, 10, 20);
+
+shape *main_rec = new rectangle(10, 10, 15, 20);
+
 rectangle  prop1(80, 70, 50, 50), prop2(-70, -70, 20, 15);	  
 circle prop3(60, -70, 15);
 triangle prop4(point(-100, 35), point(-50, 100), point(-50, 35));
@@ -44,15 +47,30 @@ void key_press(unsigned char c, int a, int b){
 	if(c == 's') key_arr['s'] = true;
 	if(c == 'a') key_arr['a'] = true;
 	if(c == 'd') key_arr['d'] = true;
+	if(c == 't') {
+		shape *aux = main_rec;
+		main_rec = new triangle(point(0, 10), point(20, 30), point(40, 10));
+		delete aux;
+	}
+	if(c == 'r') {
+		shape *aux = main_rec;
+		main_rec = new rectangle(10, 10, 15, 20);
+		delete aux;
+	}
+	if(c == 'c') {
+		shape *aux = main_rec;
+		main_rec = new circle(10, 10, 20);
+		delete aux;
+	}
 }
 
 void handle_movement() {
-	if(key_arr['w']) main_rec.translade(0.0, 2);
-	if(key_arr['s']) main_rec.translade(0.0, -2);
-	if(key_arr['a']) main_rec.translade(-2, 0.0);
-	if(key_arr['d']) main_rec.translade(2, 0.0);
+	if(key_arr['w']) main_rec->translade(0.0, 2);
+	if(key_arr['s']) main_rec->translade(0.0, -2);
+	if(key_arr['a']) main_rec->translade(-2, 0.0);
+	if(key_arr['d']) main_rec->translade(2, 0.0);
 	
-	main_rec.fill = main_rec.overlaps(prop1) || main_rec.overlaps(prop2) || main_rec.overlaps(prop3) || main_rec.overlaps(prop4);
+	main_rec->fill = main_rec->overlaps(prop1) || main_rec->overlaps(prop2) || main_rec->overlaps(prop3) || main_rec->overlaps(prop4);
 }
 
 void Desenha(void)
@@ -63,7 +81,7 @@ void Desenha(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(.0f,.0f,.0f);
      
-	main_rec.draw();
+	main_rec->draw();
 	prop1.draw();
 	prop2.draw();
 	prop3.draw();
@@ -87,5 +105,6 @@ int main(int argc, char **argv){
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	win=150.0f;
 	glutMainLoop();
+	delete main_rec;
 	return 0;
 }

@@ -2,7 +2,10 @@
 #define _LINE_H
 
 #include <algorithm>
+#include <utility>
 
+
+#include "sjfwd.h"
 #include "point.h"
 
 #define EPSILON 0.00000001
@@ -78,36 +81,31 @@ class line {
 		point interception_point(const line &l) const {
 		
 			point interception;
-			
 			if(std::abs(this->a) < EPSILON) {
-				if(std::abs(l.a) < EPSILON) {
-					return 1.0/0.0;
-				}else{
-					interception.x = (l.b*this->c - this->b*l.c) / (this->b * l.a);
-					interception.y = -this->c / this->b;
-					return interception;
-				}
+				if(std::abs(l.a) < EPSILON) return 1.0/0.0;
+				
+				interception.x = (l.b*this->c - this->b*l.c) / (this->b * l.a);
+				interception.y = -this->c / this->b;
+				return interception;
 			}
 			
 			if(std::abs(this->b) < EPSILON) {
-				if(std::abs(l.b) < EPSILON){
-					return 1.0/0.0;
-				}else{
-					interception.x = -this->c / this->a;
-					interception.y = (l.a*this->c - this->a*l.c) / (this->a * l.b);
-					return interception;
-				}
+				if(std::abs(l.b) < EPSILON) return 1.0/0.0;
+					
+				interception.x = -this->c / this->a;
+				interception.y = (l.a*this->c - this->a*l.c) / (this->a * l.b);
+				return interception;
 			}
 			
 			if(std::abs(l.a) < EPSILON) {
-				interception.x = -l.c / l.b;
-				interception.y = (this->b*l.c - l.b*this->c) / (l.b * this->a);
+				interception.x = (this->b*l.c - l.b*this->c) / (l.b * this->a);
+				interception.y = -l.c / l.b;
 				return interception;
 			}
 			
 			if(std::abs(l.b) < EPSILON) {
-				interception.x = (this->a*l.c - l.a*this->c) / (l.a * this->b);
-				interception.y = -l.c / l.b;
+				interception.x = -l.c / l.b;
+				interception.y = (this->a*l.c - l.a*this->c) / (l.a * this->b);
 				return interception;
 			}
 			
@@ -142,9 +140,9 @@ class segment : public line {
 				this->b = 0;
 				this->c = -p1.x;
 			} else {
-				this->a = -(p1.x - p2.x) / (p1.y - p2.y);
-				this->b = 1;
-				this->c = -this->a*p1.x - p1.y;
+				this->a = (p1.y - p2.y)/ (p1.x - p2.x);
+				this->b = -1;
+				this->c = -this->a*p1.x + p1.y;
 			}
 			this->x_ubound = std::max(p1.x, p2.x);
 			this->x_lbound = std::min(p1.x, p2.x);
@@ -180,10 +178,24 @@ class segment : public line {
 			*this = segment(p1, p2);
 		}
 		
+		std::pair<point, point> limits() const {
+			std::pair<point, point> ans  ( std::make_pair( point(this->x_lbound, this->y_lbound),
+							   point(this->x_ubound, this->y_ubound) )
+						);
+					
+			if(this->a < 0 == this->b < 0){
+				ans.first.y = this->y_ubound;
+				ans.second.y = this->y_lbound;
+			}
+			
+			return ans;
+		}
+		
 		bool overlaps(const segment s) const {
 			point intercept;
-			if(this->distance(s) > EPSILON) return false;
 			intercept = this->interception_point(s);
+			if(this->distance(s) > EPSILON) return false;
+			
 			return intercept.x >= this->x_lbound && intercept.x <= this->x_ubound 
 				&& intercept.y >= this->y_lbound && intercept.y <= this->y_ubound
 				&& intercept.x >= s.x_lbound && intercept.x <= s.x_ubound 
@@ -270,9 +282,9 @@ class segment : public line {
 				return ans;
 			}
 			
-			normal_through_p.a = -this->b / this->a;
-			normal_through_p.b = 1;
-			normal_through_p.c = -normal_through_p.a*p.x - p.y;
+			normal_through_p.a = this->b / this->a;
+			normal_through_p.b = -1;
+			normal_through_p.c = p.y - normal_through_p.a*p.x;
 			
 			ans = this->interception_point(normal_through_p);
 			
